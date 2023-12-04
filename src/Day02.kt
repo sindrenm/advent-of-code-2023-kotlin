@@ -15,12 +15,37 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        return input.sumOf { game ->
+            val reds = "(\\d+) red".toRegex().findAll(game)
+                .toList()
+                .map { it.groupValues[1].toInt() }
+
+            val minRedsNeeded = reds.maxOrNull() ?: 0
+
+            val greens = "(\\d+) green".toRegex().findAll(game)
+                .toList()
+                .map { it.groupValues[1].toInt() }
+
+            val minGreensNeeded = greens.maxOrNull() ?: 0
+
+            val blues = "(\\d+) blue".toRegex().findAll(game)
+                .toList()
+                .map { it.groupValues[1].toInt() }
+
+            val minBluesNeeded = blues.maxOrNull() ?: 0
+
+            println("reds = $minRedsNeeded")
+            println("greens = $minGreensNeeded")
+            println("blues = $minBluesNeeded")
+            println("")
+
+            minRedsNeeded * minGreensNeeded * minBluesNeeded
+        }
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day02_test")
-    check(part1(testInput) == 8)
+    check(part2(testInput) == 2286)
 
     val input = readInput("Day02")
     part1(input).println()
