@@ -1,3 +1,4 @@
+import java.util.Stack
 import kotlin.math.pow
 
 fun main() {
@@ -8,12 +9,36 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val originalCards = input.map(Card.Companion::parse).reversed()
+        val getCardsStack = Stack<Card>()
+
+        originalCards.forEach { getCardsStack.push(it) }
+
+        var counter = 0
+        while (getCardsStack.any()) {
+            val currentCard = getCardsStack.pop()
+
+            val winCount = currentCard.ownWinningNumbers.count()
+
+            val cardsWeWonFromCurrentCard = List(winCount) { index ->
+                originalCards
+                    .firstOrNull { it.cardNumber == currentCard.cardNumber + index + 1 }
+                    ?.copy(copyOfCardNumber = currentCard.cardNumber, isCopied = false)
+            }.filterNotNull()
+
+            cardsWeWonFromCurrentCard.reversed().forEach { getCardsStack.push(it) }
+
+            counter++
+        }
+
+        println("counter = $counter")
+
+        return counter
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day04_test")
-    check(part1(testInput) == 13)
+    check(part2(testInput) == 30)
 
     val input = readInput("Day04")
     part1(input).println()
@@ -24,8 +49,10 @@ data class Card(
     val cardNumber: Int,
     val ownNumbers: List<Int>,
     val winningNumbers: List<Int>,
+    val copyOfCardNumber: Int?,
+    var isCopied: Boolean,
 ) {
-    private val ownWinningNumbers: Set<Int> by lazy {
+    val ownWinningNumbers: Set<Int> by lazy {
         ownNumbers.intersect(winningNumbers.toSet())
     }
 
@@ -48,6 +75,8 @@ data class Card(
                 cardNumber = cardNumber,
                 ownNumbers = ownNumbers,
                 winningNumbers = winningNumbers,
+                copyOfCardNumber = null,
+                isCopied = false,
             )
         }
 
